@@ -9,7 +9,7 @@ from cortex_DIM.nn_modules.mi_networks import MIFCNet, MI1x1ConvNet
 from evaluate_embedding import evaluate_embedding
 from gin import Encoder
 from losses import local_global_loss_
-from model import FF, PriorDiscriminator
+from model import FF, PriorDiscriminator, Projhead, mixup_data
 from torch import optim
 from torch.autograd import Variable
 from torch_geometric.data import DataLoader
@@ -26,7 +26,7 @@ from nt_xent import NTXentLoss
 
 class MCL(nn.Module):
   def __init__(self, hidden_dim, num_gc_layers, args, alpha=0.5, beta=1., gamma=.1):
-    super(InfoGraph, self).__init__()
+    super(MCL, self).__init__()
 
     self.alpha = alpha
     self.beta = beta
@@ -64,10 +64,10 @@ class MCL(nn.Module):
         x = torch.ones(batch.shape[0]).to(device)
 
     y, M = self.encoder(x, edge_index, batch) # y is global rep, M is node level rep
-    
+    import pdb; pdb.set_trace()    
     ### get mixed samples ###
-    y_positive1 = model.mixing(y. mixup_alpha)
-    y_positive2 = model.mixing(y. mixup_alpha)
+    y_positive1 = mixup_data(y. mixup_alpha)
+    y_positive2 = mixup_data(y. mixup_alpha)
     y_mix = torch.cat((y_positive1,y_positive2), 0)
     ## pass the mixed positive features to proj head ##
     hidden = self.proj_head(y_mix)
@@ -118,7 +118,7 @@ if __name__ == '__main__':
     print('================')
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = InfoGraph(args.hidden_dim, args.num_gc_layers, args).to(device)
+    model = MCL(args.hidden_dim, args.num_gc_layers, args).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     model.eval()

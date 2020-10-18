@@ -54,6 +54,7 @@ class InfoGraph(nn.Module):
                 m.bias.data.fill_(0.0)
 
   def forward(self, x, edge_index, batch, num_graphs):
+    import pdb; pdb.set_trace()
     # batch_size = data.num_graphs
     if x is None:
         x = torch.ones(batch.shape[0]).to(device)
