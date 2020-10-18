@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from cortex_DIM.functions.gan_losses import get_positive_expectation, get_negative_expectation
 
+LARGE_NUM = 1e9
+
 def local_global_loss_(l_enc, g_enc, edge_index, batch, measure):
     '''
     Args:
@@ -48,3 +50,38 @@ def adj_loss_(l_enc, g_enc, edge_index, batch):
 
     loss = nn.BCELoss()(res, adj)
     return loss
+
+def contrastive_loss(hiddens,
+                     hidden_norms=True,
+                     temperature=1.0
+                     ):
+    if hidden_norms:
+        hiddens =  torch.norm(hiddens, dim=1)
+    hiddens1, hiddens2 = torch.split(hiddens,2,0)
+    batch_size = hiddens1.shape[0]
+    labels_idx = torch.range(0, batch_size-1, dtype=torch.long)
+    labels = to_one_hot(labels_idx, batch_size*2)
+    masks = to_one_hot(labels_idx, batch_size)
+    
+    logits_aa = torch.matmul(hiddens1, torch.transpose(hiddens1,0,1))/temperature
+    logits_aa = logits_aa - masks * LARGE_NUM
+    
+    logits_bb = torch.matmul(hiddens2, torch.transpose(hiddens2,0,1))/temperature
+    logits_bb = logits_bb - masks * LARGE_NUM
+    
+    logits_ab = torch.matmul(hiddens1, torch.transpose(hiddens2,0,1))/temperature
+    logits_ba = torch.matmul(hiddens2, torch.transpose(hiddens1,0,1))/temperature
+    
+    #loss_a = torch.nn.cross
+    #unfinished
+    
+    
+
+
+def to_one_hot(inp,one_hot_length):
+    y_onehot = torch.FloatTensor(inp.size(0), one_hot_length)
+    y_onehot.zero_()
+
+    y_onehot.scatter_(1, inp.unsqueeze(1).data.cpu(), 1)
+    
+    return Variable(y_onehot.cuda(),requires_grad=False)

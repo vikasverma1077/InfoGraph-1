@@ -9,12 +9,18 @@ def arg_parse():
             const=True, default=False)
     parser.add_argument('--prior', dest='prior', action='store_const', 
             const=True, default=False)
-
+    
+    parser.add_argument('--epochs', dest='epochs', type=int, default=20,
+            help='')
     parser.add_argument('--lr', dest='lr', type=float,
             help='Learning rate.')
     parser.add_argument('--num-gc-layers', dest='num_gc_layers', type=int, default=5,
             help='Number of graph convolution layers before each pooling')
     parser.add_argument('--hidden-dim', dest='hidden_dim', type=int, default=32,
+            help='')
+    parser.add_argument('--batch_size', dest='batch_size', type=int, default=128,
+            help='')
+    parser.add_argument('--temperature', dest='temperature', type=float, default=1.0,
             help='')
 
     return parser.parse_args()

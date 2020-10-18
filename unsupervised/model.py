@@ -64,3 +64,37 @@ class FF(nn.Module):
     def forward(self, x):
         return self.block(x) + self.linear_shortcut(x)
 
+class Projhead(nn.Module):
+    def __init__(self, input_dim):
+        super().__init__()
+        # self.c0 = nn.Conv1d(input_dim, 512, kernel_size=1)
+        # self.c1 = nn.Conv1d(512, 512, kernel_size=1)
+        # self.c2 = nn.Conv1d(512, 1, kernel_size=1)
+        self.block = nn.Sequential(
+            nn.Linear(input_dim, input_dim),
+            nn.ReLU(),
+            nn.Linear(input_dim, input_dim),
+            nn.ReLU(),
+            nn.Linear(input_dim, input_dim),
+            nn.ReLU()
+        )
+        #self.linear_shortcut = nn.Linear(input_dim, input_dim)
+        # self.c0 = nn.Conv1d(input_dim, 512, kernel_size=1, stride=1, padding=0)
+        # self.c1 = nn.Conv1d(512, 512, kernel_size=1, stride=1, padding=0)
+        # self.c2 = nn.Conv1d(512, 1, kernel_size=1, stride=1, padding=0)
+
+    def forward(self, x):
+        return self.block(x)# + self.linear_shortcut(x)
+
+
+def mixup_data(x, alpha):
+
+    '''Compute the mixup data. Return mixed inputs, pairs of targets, and lambda'''
+     
+    #lam = np.random.beta(alpha, alpha)
+    lam = np.random.uniform(alpha, 1.0)
+    batch_size = x.size()[0]
+    index = torch.randperm(batch_size).cuda()
+    mixed_x = lam * x + (1 - lam) * x[index,:]
+    return mixed_x
+
