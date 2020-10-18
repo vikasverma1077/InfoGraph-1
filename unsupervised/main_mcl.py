@@ -66,8 +66,8 @@ class MCL(nn.Module):
     y, M = self.encoder(x, edge_index, batch) # y is global rep, M is node level rep
     import pdb; pdb.set_trace()    
     ### get mixed samples ###
-    y_positive1 = mixup_data(y. mixup_alpha)
-    y_positive2 = mixup_data(y. mixup_alpha)
+    y_positive1 = mixup_data(y, args.mixup_alpha)
+    y_positive2 = mixup_data(y. args.mixup_alpha)
     y_mix = torch.cat((y_positive1,y_positive2), 0)
     ## pass the mixed positive features to proj head ##
     hidden = self.proj_head(y_mix)

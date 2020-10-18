@@ -22,6 +22,8 @@ def arg_parse():
             help='')
     parser.add_argument('--temperature', dest='temperature', type=float, default=1.0,
             help='')
+    parser.add_argument('--mixup_alpha', dest='mixup_alpha', type=float, default=0.9,
+            help='')
 
     return parser.parse_args()
 
