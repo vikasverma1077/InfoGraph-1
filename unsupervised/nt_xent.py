@@ -60,7 +60,7 @@ class NTXentLoss(torch.nn.Module):
         logits = torch.cat((positives, negatives), dim=1)
         logits /= self.temperature
 
-        labels = torch.zeros(2 * batch_size).to(self.device).long()
+        labels = torch.zeros(2 * self.batch_size).to(self.device).long()
         loss = self.criterion(logits, labels)
-
-        return loss / (2 * batch_size)
+        print(loss)
+        return loss / (2 * self.batch_size)

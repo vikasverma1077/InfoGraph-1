@@ -64,18 +64,18 @@ class MCL(nn.Module):
         x = torch.ones(batch.shape[0]).to(device)
 
     y, M = self.encoder(x, edge_index, batch) # y is global rep, M is node level rep
-    import pdb; pdb.set_trace()    
     ### get mixed samples ###
     y_positive1 = mixup_data(y, args.mixup_alpha)
-    y_positive2 = mixup_data(y. args.mixup_alpha)
+    y_positive2 = mixup_data(y, args.mixup_alpha)
     y_mix = torch.cat((y_positive1,y_positive2), 0)
     ## pass the mixed positive features to proj head ##
-    hidden = self.proj_head(y_mix)
+    hiddens = self.proj_head(y_mix)
     ## get the Simclr loss ##
-    hidden = F.normalize(hidden, dim=1)
-    hiddens1, hiddens2 = torch.split(hiddens,2,0)
-    nt_xent_loss = self.nt_xent_criterion(hiddens1, hiddens2)
-    
+    hiddens = F.normalize(hiddens, dim=1)
+    hiddens1, hiddens2 = torch.split(hiddens,int(hiddens.shape[0]/2),0)
+    print(hiddens1.shape, hiddens2.shape)
+    nt_xent_loss = self.nt_xent_loss(hiddens1, hiddens2)
+    """
     ### get in infograph loss ##
     g_enc = self.global_d(y)
     l_enc = self.local_d(M)
@@ -93,7 +93,7 @@ class MCL(nn.Module):
         PRIOR = 0
         
     info_graph_loss = local_global_loss + PRIOR
-    
+    """
     return nt_xent_loss
 if __name__ == '__main__':
     args = arg_parse()
@@ -124,13 +124,14 @@ if __name__ == '__main__':
     model.eval()
     emb, y = model.encoder.get_embeddings(dataloader)
     print('===== Before training =====')
+    """
     res = evaluate_embedding(emb, y)
     accuracies['logreg'].append(res[0])
     accuracies['svc'].append(res[1])
     accuracies['linearsvc'].append(res[2])
     accuracies['randomforest'].append(res[3])
-
-
+    """
+    
     for epoch in range(1, epochs+1):
         loss_all = 0
         model.train()
