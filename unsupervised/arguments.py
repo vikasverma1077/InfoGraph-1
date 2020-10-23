@@ -12,9 +12,9 @@ def arg_parse():
     
     parser.add_argument('--epochs', dest='epochs', type=int, default=20,
             help='')
-    parser.add_argument('--lr', dest='lr', type=float,
+    parser.add_argument('--lr', dest='lr', type=float, default=0.01,
             help='Learning rate.')
-    parser.add_argument('--num-gc-layers', dest='num_gc_layers', type=int, default=5,
+    parser.add_argument('--num-gc-layers', dest='num_gc_layers', type=int, default=4,
             help='Number of graph convolution layers before each pooling')
     parser.add_argument('--hidden-dim', dest='hidden_dim', type=int, default=32,
             help='')

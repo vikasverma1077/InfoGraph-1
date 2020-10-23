@@ -54,7 +54,6 @@ class InfoGraph(nn.Module):
                 m.bias.data.fill_(0.0)
 
   def forward(self, x, edge_index, batch, num_graphs):
-    import pdb; pdb.set_trace()
     # batch_size = data.num_graphs
     if x is None:
         x = torch.ones(batch.shape[0]).to(device)
@@ -108,10 +107,10 @@ if __name__ == '__main__':
     emb, y = model.encoder.get_embeddings(dataloader)
     print('===== Before training =====')
     res = evaluate_embedding(emb, y)
-    accuracies['logreg'].append(res[0])
-    accuracies['svc'].append(res[1])
-    accuracies['linearsvc'].append(res[2])
-    accuracies['randomforest'].append(res[3])
+    accuracies['logreg'].append(res)#(res[0])
+    #accuracies['svc'].append(res[1])
+    #accuracies['linearsvc'].append(res[2])
+    #accuracies['randomforest'].append(res[3])
 
 
     for epoch in range(1, epochs+1):
@@ -130,10 +129,10 @@ if __name__ == '__main__':
             model.eval()
             emb, y = model.encoder.get_embeddings(dataloader)
             res = evaluate_embedding(emb, y)
-            accuracies['logreg'].append(res[0])
-            accuracies['svc'].append(res[1])
-            accuracies['linearsvc'].append(res[2])
-            accuracies['randomforest'].append(res[3])
+            accuracies['logreg'].append(res)#(res[0])
+            #accuracies['svc'].append(res[1])
+            #accuracies['linearsvc'].append(res[2])
+            #accuracies['randomforest'].append(res[3])
             print(accuracies)
 
     with open('unsupervised.log', 'a+') as f:

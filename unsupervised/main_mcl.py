@@ -73,9 +73,9 @@ class MCL(nn.Module):
     ## get the Simclr loss ##
     hiddens = F.normalize(hiddens, dim=1)
     hiddens1, hiddens2 = torch.split(hiddens,int(hiddens.shape[0]/2),0)
-    print(hiddens1.shape, hiddens2.shape)
+    #print(hiddens1.shape, hiddens2.shape)
     nt_xent_loss = self.nt_xent_loss(hiddens1, hiddens2)
-    """
+    
     ### get in infograph loss ##
     g_enc = self.global_d(y)
     l_enc = self.local_d(M)
@@ -93,8 +93,9 @@ class MCL(nn.Module):
         PRIOR = 0
         
     info_graph_loss = local_global_loss + PRIOR
-    """
-    return nt_xent_loss
+    
+    return  nt_xent_loss
+    #return info_graph_loss
 if __name__ == '__main__':
     args = arg_parse()
     accuracies = {'logreg':[], 'svc':[], 'linearsvc':[], 'randomforest':[]}
@@ -124,13 +125,12 @@ if __name__ == '__main__':
     model.eval()
     emb, y = model.encoder.get_embeddings(dataloader)
     print('===== Before training =====')
-    """
+    
     res = evaluate_embedding(emb, y)
-    accuracies['logreg'].append(res[0])
-    accuracies['svc'].append(res[1])
-    accuracies['linearsvc'].append(res[2])
-    accuracies['randomforest'].append(res[3])
-    """
+    accuracies['logreg'].append(res)#(res[0])
+    #accuracies['svc'].append(res[1])
+    #accuracies['linearsvc'].append(res[2])
+    #accuracies['randomforest'].append(res[3])
     
     for epoch in range(1, epochs+1):
         loss_all = 0
@@ -138,6 +138,7 @@ if __name__ == '__main__':
         for data in dataloader:
             data = data.to(device)
             optimizer.zero_grad()
+            #import pdb; pdb.set_trace()
             loss = model(data.x, data.edge_index, data.batch, data.num_graphs)
             loss_all += loss.item() * data.num_graphs
             loss.backward()
@@ -148,12 +149,13 @@ if __name__ == '__main__':
             model.eval()
             emb, y = model.encoder.get_embeddings(dataloader)
             res = evaluate_embedding(emb, y)
-            accuracies['logreg'].append(res[0])
-            accuracies['svc'].append(res[1])
-            accuracies['linearsvc'].append(res[2])
-            accuracies['randomforest'].append(res[3])
-            print(accuracies)
-
+            accuracies['logreg'].append(res)#(res[0])
+            #accuracies['svc'].append(res[1])
+            #accuracies['linearsvc'].append(res[2])
+            #accuracies['randomforest'].append(res[3])
+            print(accuracies)   
+    last_epoch_acc = np.asarray(accuracies['logreg'])[-5:].mean()
+    print ('last_epoch_acc=', last_epoch_acc) 
     with open('unsupervised.log', 'a+') as f:
         s = json.dumps(accuracies)
         f.write('{},{},{},{},{},{}\n'.format(args.DS, args.num_gc_layers, epochs, log_interval, lr, s))

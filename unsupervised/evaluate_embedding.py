@@ -52,7 +52,8 @@ class LogReg(nn.Module):
         ret = self.fc(seq)
         return ret
 
-def logistic_classify(x, y):
+def logistic_classify(x, y, seed):
+    torch.manual_seed(seed)
     nb_classes = np.unique(y).shape[0]
     xent = nn.CrossEntropyLoss()
     hid_units = x.shape[1]
@@ -143,24 +144,24 @@ def evaluate_embedding(embeddings, labels, search=True):
     labels = preprocessing.LabelEncoder().fit_transform(labels)
     x, y = np.array(embeddings), np.array(labels)
     # print(x.shape, y.shape)
-
-    logreg_accuracies = [logistic_classify(x, y) for _ in range(1)]
+    
+    logreg_accuracies = [logistic_classify(x, y, i) for i in range(5)]
     # print(logreg_accuracies)
-    print('LogReg', np.mean(logreg_accuracies))
-
+    print('LogReg', np.mean(logreg_accuracies), np.std(logreg_accuracies))
+    """    
     svc_accuracies = [svc_classify(x,y, search) for _ in range(1)]
     # print(svc_accuracies)
     print('svc', np.mean(svc_accuracies))
-
+    
     linearsvc_accuracies = [linearsvc_classify(x, y, search) for _ in range(1)]
     # print(linearsvc_accuracies)
     print('LinearSvc', np.mean(linearsvc_accuracies))
-
+    
     randomforest_accuracies = [randomforest_classify(x, y, search) for _ in range(1)]
     # print(randomforest_accuracies)
     print('randomforest', np.mean(randomforest_accuracies))
-
-    return np.mean(logreg_accuracies), np.mean(svc_accuracies), np.mean(linearsvc_accuracies), np.mean(randomforest_accuracies)
-
+    """
+    return np.mean(logreg_accuracies)#, np.mean(svc_accuracies), np.mean(linearsvc_accuracies), np.mean(randomforest_accuracies)
+    #return linearsvc_accuracies
 if __name__ == '__main__':
     evaluate_embedding('./data', 'ENZYMES', np.load('tmp/emb.npy'))
