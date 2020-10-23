@@ -64,10 +64,29 @@ class MCL(nn.Module):
         x = torch.ones(batch.shape[0]).to(device)
 
     y, M = self.encoder(x, edge_index, batch) # y is global rep, M is node level rep
+    """
     ### get mixed samples ###
     y_positive1 = mixup_data(y, args.mixup_alpha)
     y_positive2 = mixup_data(y, args.mixup_alpha)
     y_mix = torch.cat((y_positive1,y_positive2), 0)
+    """
+    y_positive1_1 = mixup_data(y, args.mixup_alpha)
+    y_positive2_1 = mixup_data(y, args.mixup_alpha)
+    y_positive1_2 = mixup_geo_data(y, args.mixup_alpha)
+    y_positive2_2 = mixup_geo_data(y, args.mixup_alpha)
+    y_positive1_3 = mixup_binary_data(y, args.mixup_alpha)
+    y_positive2_3 = mixup_binary_data(y, args.mixup_alpha)
+    
+    y_positive1 = torch.cat((y_positive1_1,y_positive1_2,y_positive1_3),0)
+    y_positive2 = torch.cat((y_positive2_1,y_positive2_2,y_positive2_3),0)
+    
+    size = y_positive1.size()[0]
+    index = torch.randperm(size).cuda()
+    index = index[0:y.size()[0]]
+    y_positive1 = y_positive1[index,:]
+    y_positive2 = y_positive2[index,:]
+    y_mix = torch.cat((y_positive1,y_positive2), 0)
+    
     ## pass the mixed positive features to proj head ##
     hiddens = self.proj_head(y_mix)
     ## get the Simclr loss ##

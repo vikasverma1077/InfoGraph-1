@@ -98,3 +98,29 @@ def mixup_data(x, alpha):
     mixed_x = lam * x + (1 - lam) * x[index,:]
     return mixed_x
 
+def mixup_geo_data(x, alpha):
+
+    '''Compute the mixup data. Return mixed inputs, pairs of targets, and lambda'''
+     
+    #lam = np.random.beta(alpha, alpha)
+    lam = np.random.uniform(alpha, 1.0)
+    batch_size = x.size()[0]
+    index = torch.randperm(batch_size).cuda()
+    mixed_x = torch.mul(torch.pow(x, lam),torch.pow( x[index,:], (1 - lam))) 
+    return mixed_x
+
+
+def mixup_binary_data(x, alpha):
+
+    '''Compute the mixup data. Return mixed inputs, pairs of targets, and lambda'''
+     
+    #lam = np.random.beta(alpha, alpha)
+    lam = np.random.uniform(alpha, 1.0)
+    batch_size = x.size()[0]
+    index = torch.randperm(batch_size).cuda()
+    
+    ones = torch.ones_like(x)
+    dropout_mask = torch.nn.functional.dropout(ones, p=1-lam, training=True, inplace=False)
+    dropout_mask_complement = ones-dropout_mask
+    mixed_x = torch.mul(x, dropout_mask)+ torch.mul(x[index,:],dropout_mask_complement) 
+    return mixed_x
